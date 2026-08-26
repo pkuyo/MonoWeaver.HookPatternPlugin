@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>13</LangVersion>
+    <Nullable>enable</Nullable>
+    <AssemblyName>MonoWeaver.ILSpy.HookPatternPlugin.Plugin</AssemblyName>
+    <RootNamespace>MonoWeaver.ILSpy</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <ILSpyDir Condition="'$(ILSpyDir)' == ''">$(ILSPY_DIR)</ILSpyDir>
+  </PropertyGroup>
+
+  <Target Name="RequireILSpyDirectory" BeforeTargets="ResolveReferences"
+          Condition="'$(ILSpyDir)' == '' Or !Exists('$(ILSpyDir)\ILSpy.dll')">
+    <Error Text="Set ILSpyDir (or ILSPY_DIR) to an ILSpy 11 installation directory." />
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="../MonoWeaver.PatternGeneration/MonoWeaver.PatternGeneration.csproj" />
+    <PackageReference Include="MonoWeaver" Version="$(MonoWeaverVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ILSpy 11 ships Cecil 0.11.6. Pin compile-time API identity but use the host copy at runtime. -->
+    <PackageReference Include="Mono.Cecil" Version="0.11.6" PrivateAssets="all" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ILSpy"><HintPath>$(ILSpyDir)\ILSpy.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="ICSharpCode.Decompiler"><HintPath>$(ILSpyDir)\ICSharpCode.Decompiler.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="ICSharpCode.ILSpyX"><HintPath>$(ILSpyDir)\ICSharpCode.ILSpyX.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Mono.Cecil"><HintPath>$(ILSpyDir)\Mono.Cecil.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Avalonia.Base"><HintPath>$(ILSpyDir)\Avalonia.Base.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Avalonia.Controls"><HintPath>$(ILSpyDir)\Avalonia.Controls.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Avalonia.Markup"><HintPath>$(ILSpyDir)\Avalonia.Markup.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="AvaloniaEdit"><HintPath>$(ILSpyDir)\AvaloniaEdit.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="System.Composition.AttributedModel"><HintPath>$(ILSpyDir)\System.Composition.AttributedModel.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>

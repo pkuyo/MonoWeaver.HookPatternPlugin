@@ -1,0 +1,73 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>12</LangVersion>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>MonoWeaver.DnSpyEx.HookPatternPlugin.x</AssemblyName>
+    <RootNamespace>MonoWeaver.DnSpyEx</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <DnSpyDir Condition="'$(DnSpyDir)' == ''">$(DNSPY_DIR)</DnSpyDir>
+  </PropertyGroup>
+
+  <Target Name="RequireDnSpyDirectory" BeforeTargets="ResolveReferences"
+          Condition="'$(DnSpyDir)' == '' Or !Exists('$(DnSpyDir)\bin\dnSpy.Contracts.DnSpy.dll')">
+    <Error Text="Set DnSpyDir (or DNSPY_DIR) to a dnSpyEx .NET Framework installation directory. Expected $(DnSpyDir)\bin\dnSpy.Contracts.DnSpy.dll." />
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="../MonoWeaver.PatternGeneration/MonoWeaver.PatternGeneration.csproj" />
+    <PackageReference Include="Mono.Cecil" Version="$(CecilPackageVersion)" />
+    <PackageReference Include="MonoWeaver" Version="$(MonoWeaverVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="dnSpy.Contracts.DnSpy">
+      <HintPath>$(DnSpyDir)\bin\dnSpy.Contracts.DnSpy.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="dnSpy.Contracts.Logic">
+      <HintPath>$(DnSpyDir)\bin\dnSpy.Contracts.Logic.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="dnlib">
+      <HintPath>$(DnSpyDir)\bin\dnlib.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis">
+      <HintPath>$(DnSpyDir)\bin\Microsoft.CodeAnalysis.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp">
+      <HintPath>$(DnSpyDir)\bin\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="System.Collections.Immutable">
+      <HintPath>$(DnSpyDir)\bin\System.Collections.Immutable.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.Text.Data">
+      <HintPath>$(DnSpyDir)\bin\Microsoft.VisualStudio.Text.Data.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.Text.Logic">
+      <HintPath>$(DnSpyDir)\bin\Microsoft.VisualStudio.Text.Logic.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.Text.UI">
+      <HintPath>$(DnSpyDir)\bin\Microsoft.VisualStudio.Text.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.Text.UI.Wpf">
+      <HintPath>$(DnSpyDir)\bin\Microsoft.VisualStudio.Text.UI.Wpf.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.CoreUtility">
+      <HintPath>$(DnSpyDir)\bin\Microsoft.VisualStudio.CoreUtility.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+  </ItemGroup>
+
+</Project>

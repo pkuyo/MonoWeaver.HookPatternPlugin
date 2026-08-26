@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="WindowTitle" xml:space="preserve"><value>生成 MonoWeaver HookPattern</value></data>
+  <data name="MethodLabel" xml:space="preserve"><value>方法：</value></data>
+  <data name="SelectedCodeHeader" xml:space="preserve"><value>选中代码</value></data>
+  <data name="HookHeader" xml:space="preserve"><value>Hook 设置</value></data>
+  <data name="PatternTypeLabel" xml:space="preserve"><value>Pattern 类型：</value></data>
+  <data name="PositionLabel" xml:space="preserve"><value>位置：</value></data>
+  <data name="BeforeSelectedCode" xml:space="preserve"><value>选中代码之前</value></data>
+  <data name="AfterSelectedCode" xml:space="preserve"><value>选中代码之后</value></data>
+  <data name="CallbackLabel" xml:space="preserve"><value>回调：</value></data>
+  <data name="AdvancedHeader" xml:space="preserve"><value>高级 IL 匹配</value></data>
+  <data name="AdvancedDescription" xml:space="preserve"><value>可指定子表达式或 IL 锚点；默认使用覆盖完整选区的 Pattern。</value></data>
+  <data name="GeneratedCodeHeader" xml:space="preserve"><value>生成的代码</value></data>
+  <data name="CopyPattern" xml:space="preserve"><value>复制 Pattern</value></data>
+  <data name="CopyHook" xml:space="preserve"><value>复制 Hook</value></data>
+  <data name="Close" xml:space="preserve"><value>关闭</value></data>
+  <data name="StatusUnique" xml:space="preserve"><value>生成的 Pattern 已唯一匹配选中代码。</value></data>
+  <data name="StatusAmbiguous" xml:space="preserve"><value>警告：该 Pattern 匹配到 {0} 处。可在“高级 IL 匹配”中进一步限定。</value></data>
+  <data name="MatchSelected" xml:space="preserve"><value>{0}（已选中）</value></data>
+  <data name="NoSuggestions" xml:space="preserve"><value>MonoWeaver 无法把选中代码表示为 Value、Effect 或 Condition Pattern。</value></data>
+  <data name="ModuleUnsaved" xml:space="preserve"><value>所选模块没有可读取的磁盘文件。</value></data>
+  <data name="MethodResolveFailed" xml:space="preserve"><value>无法在模块中解析方法标记 {0}。</value></data>
+  <data name="NoIlMapping" xml:space="preserve"><value>选中的源代码没有映射到任何 CIL 指令。</value></data>
+  <data name="SelectionExceedsSinglePattern" xml:space="preserve"><value>选中 IL 包含多个语义根，无法由单个 Value、Effect 或 Condition Pattern 完整表示。请缩小选区，或分别生成多个 Hook。</value></data>
+  <data name="ErrorTitle" xml:space="preserve"><value>MonoWeaver HookPattern</value></data>
+  <data name="Ok" xml:space="preserve"><value>确定</value></data>
+</root>

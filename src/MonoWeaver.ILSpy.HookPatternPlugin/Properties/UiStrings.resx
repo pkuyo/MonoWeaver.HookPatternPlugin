@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="WindowTitle" xml:space="preserve"><value>Generate MonoWeaver HookPattern</value></data>
+  <data name="MethodLabel" xml:space="preserve"><value>Method:</value></data>
+  <data name="SelectedCodeHeader" xml:space="preserve"><value>Selected code</value></data>
+  <data name="HookHeader" xml:space="preserve"><value>Hook</value></data>
+  <data name="PatternTypeLabel" xml:space="preserve"><value>Pattern type:</value></data>
+  <data name="PositionLabel" xml:space="preserve"><value>Position:</value></data>
+  <data name="BeforeSelectedCode" xml:space="preserve"><value>Before selected code</value></data>
+  <data name="AfterSelectedCode" xml:space="preserve"><value>After selected code</value></data>
+  <data name="CallbackLabel" xml:space="preserve"><value>Callback:</value></data>
+  <data name="AdvancedHeader" xml:space="preserve"><value>Advanced IL matching</value></data>
+  <data name="AdvancedDescription" xml:space="preserve"><value>Choose a sub-expression or IL anchor. The complete selection is used by default.</value></data>
+  <data name="GeneratedCodeHeader" xml:space="preserve"><value>Generated code</value></data>
+  <data name="CopyPattern" xml:space="preserve"><value>Copy Pattern</value></data>
+  <data name="CopyHook" xml:space="preserve"><value>Copy Hook</value></data>
+  <data name="Close" xml:space="preserve"><value>Close</value></data>
+  <data name="StatusUnique" xml:space="preserve"><value>The generated Pattern uniquely matches the selected code.</value></data>
+  <data name="StatusAmbiguous" xml:space="preserve"><value>Warning: this Pattern matches {0} locations. Refine it under Advanced IL matching.</value></data>
+  <data name="MatchSelected" xml:space="preserve"><value>{0} (selected)</value></data>
+  <data name="NoSuggestions" xml:space="preserve"><value>MonoWeaver could not express the selected code as a Value, Effect, or Condition Pattern.</value></data>
+  <data name="ModuleUnsaved" xml:space="preserve"><value>The selected module has no saved file.</value></data>
+  <data name="MethodResolveFailed" xml:space="preserve"><value>Could not resolve method token {0} in the module.</value></data>
+  <data name="NoIlMapping" xml:space="preserve"><value>The selected source code did not map to any CIL instructions.</value></data>
+  <data name="SelectionExceedsSinglePattern" xml:space="preserve"><value>The selected IL contains multiple semantic roots and cannot be represented by one Value, Effect, or Condition Pattern. Narrow the selection or generate separate hooks.</value></data>
+  <data name="ErrorTitle" xml:space="preserve"><value>MonoWeaver HookPattern</value></data>
+  <data name="Ok" xml:space="preserve"><value>OK</value></data>
+</root>

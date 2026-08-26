@@ -1,0 +1,122 @@
+<controls:WindowBase x:Class="MonoWeaver.DnSpyEx.HookPatternWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:dnSpy.Contracts.Controls;assembly=dnSpy.Contracts.DnSpy"
+        xmlns:local="clr-namespace:MonoWeaver.DnSpyEx"
+        Title="{local:Loc WindowTitle}"
+        Width="920" Height="680" MinWidth="720" MinHeight="520"
+        Style="{StaticResource DialogWindowStyle}"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Margin="2,0,2,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{local:Loc MethodLabel}" FontWeight="SemiBold" Margin="0,0,6,0" />
+            <TextBlock x:Name="MethodText" Grid.Column="1" TextTrimming="CharacterEllipsis"
+                       ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
+        </Grid>
+
+        <GroupBox Grid.Row="1" Header="{local:Loc SelectedCodeHeader}" Margin="0,0,0,8">
+            <ContentControl x:Name="SourceEditorContainer" Margin="6" Height="64"
+                            ClipToBounds="True" />
+        </GroupBox>
+
+        <GroupBox Grid.Row="2" Header="{local:Loc HookHeader}" Margin="0,0,0,8">
+            <Grid Margin="6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="210" />
+                    <ColumnDefinition Width="18" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="{local:Loc PatternTypeLabel}" VerticalAlignment="Center" Margin="0,0,7,0" />
+                <ComboBox x:Name="PatternTypeCombo" Grid.Column="1" MinHeight="24"
+                          DisplayMemberPath="Kind" SelectionChanged="PatternTypeCombo_OnSelectionChanged" />
+
+                <TextBlock Grid.Column="3" Text="{local:Loc PositionLabel}" VerticalAlignment="Center" Margin="0,0,7,0" />
+                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                    <RadioButton x:Name="BeforeRadio" Content="{local:Loc BeforeSelectedCode}"
+                                 GroupName="Position" IsChecked="True" Margin="0,0,16,0"
+                                 Checked="Position_OnChanged" />
+                    <RadioButton x:Name="AfterRadio" Content="{local:Loc AfterSelectedCode}"
+                                 GroupName="Position" Checked="Position_OnChanged" />
+                </StackPanel>
+
+                <TextBlock Grid.Row="1" Text="{local:Loc CallbackLabel}" VerticalAlignment="Center"
+                           Margin="0,9,7,0" />
+                <TextBox x:Name="CallbackText" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="4"
+                         Margin="0,7,0,0" Padding="5,3" FontFamily="Consolas"
+                         Text="Hooks.OnHook" TextChanged="CallbackText_OnTextChanged" />
+            </Grid>
+        </GroupBox>
+
+        <Expander x:Name="AdvancedExpander" Grid.Row="3"
+                  Header="{local:Loc AdvancedHeader}" IsExpanded="False" Margin="0,0,0,8">
+            <Grid Margin="0,6,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="180" />
+                </Grid.RowDefinitions>
+                <TextBlock Margin="2,0,0,5" Opacity="0.72"
+                           Text="{local:Loc AdvancedDescription}" />
+                <ListView x:Name="CandidatesGrid" Grid.Row="1" SelectionMode="Single"
+                          SelectionChanged="CandidatesGrid_OnSelectionChanged">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="{local:Loc ColumnType}" DisplayMemberBinding="{Binding Kind}" Width="90" />
+                            <GridViewColumn Header="{local:Loc ColumnExpression}" DisplayMemberBinding="{Binding ExpressionCode}" Width="440" />
+                            <GridViewColumn Header="{local:Loc ColumnIlAnchor}" DisplayMemberBinding="{Binding Location}" Width="90" />
+                            <GridViewColumn Header="{local:Loc ColumnIlCount}" DisplayMemberBinding="{Binding InstructionCount}" Width="75" />
+                            <GridViewColumn Header="{local:Loc ColumnMatches}" DisplayMemberBinding="{Binding MatchSummary}" Width="95" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </Grid>
+        </Expander>
+
+        <GroupBox Grid.Row="4" Header="{local:Loc GeneratedCodeHeader}">
+            <Grid Margin="6">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*" MinHeight="72" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="3*" MinHeight="110" />
+                </Grid.RowDefinitions>
+                <ContentControl x:Name="PatternEditorContainer" ClipToBounds="True" />
+                <GridSplitter Grid.Row="1" Height="5" HorizontalAlignment="Stretch"
+                              VerticalAlignment="Center" ResizeDirection="Rows"
+                              ResizeBehavior="PreviousAndNext" />
+                <ContentControl x:Name="CodeEditorContainer" Grid.Row="2"
+                                ClipToBounds="True" />
+            </Grid>
+        </GroupBox>
+
+        <Grid Grid.Row="5" Margin="2,9,2,0">
+            <TextBlock x:Name="StatusText" VerticalAlignment="Center" TextWrapping="Wrap"
+                       MaxWidth="530" HorizontalAlignment="Left" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="{local:Loc CopyPattern}" Padding="12,5" Margin="0,0,7,0"
+                        Click="CopyPattern_OnClick" />
+                <Button Content="{local:Loc CopyHook}" Padding="12,5" Margin="0,0,7,0"
+                        Click="CopyHook_OnClick" />
+                <Button Content="{local:Loc Close}" Padding="12,5" IsCancel="True" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</controls:WindowBase>

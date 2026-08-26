@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MonoWeaver.PatternGeneration/MonoWeaver.PatternGeneration.csproj" />
+    <Project Path="src/MonoWeaver.DnSpyEx.HookPatternPlugin/MonoWeaver.DnSpyEx.HookPatternPlugin.csproj" />
+    <Project Path="src/MonoWeaver.ILSpy.HookPatternPlugin/MonoWeaver.ILSpy.HookPatternPlugin.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MonoWeaver.HookPatternPlugin.Tests/MonoWeaver.HookPatternPlugin.Tests.csproj" />
+  </Folder>
+</Solution>
