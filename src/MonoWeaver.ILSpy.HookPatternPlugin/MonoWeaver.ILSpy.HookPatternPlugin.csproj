@@ -6,6 +6,7 @@
     <AssemblyName>MonoWeaver.ILSpy.HookPatternPlugin.Plugin</AssemblyName>
     <RootNamespace>MonoWeaver.ILSpy</RootNamespace>
     <IsPackable>false</IsPackable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <ILSpyDir Condition="'$(ILSpyDir)' == ''">$(ILSPY_DIR)</ILSpyDir>
   </PropertyGroup>
 

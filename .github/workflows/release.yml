@@ -1,0 +1,216 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag, for example v0.1.0
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  DNSPY_VERSION: v6.6.0
+  ILSPY_VERSION: v11.0
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Resolve release version
+        shell: pwsh
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          $tag = if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+              $env:INPUT_TAG
+          }
+          else {
+              "${{ github.ref_name }}"
+          }
+
+          if ($tag -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$') {
+              throw "Release tag must use the form v1.2.3: $tag"
+          }
+
+          "RELEASE_TAG=$tag" >> $env:GITHUB_ENV
+          "PACKAGE_VERSION=$($tag.Substring(1))" >> $env:GITHUB_ENV
+
+      - name: Download host SDKs
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $downloadDir = Join-Path $env:RUNNER_TEMP "host-downloads"
+          $hostDir = Join-Path $env:RUNNER_TEMP "hosts"
+          New-Item -ItemType Directory -Path $downloadDir, $hostDir -Force | Out-Null
+
+          function Download-ReleaseAsset {
+              param(
+                  [Parameter(Mandatory)] [string] $Repository,
+                  [Parameter(Mandatory)] [string] $Tag,
+                  [Parameter(Mandatory)] [string] $NamePattern,
+                  [Parameter(Mandatory)] [string] $Destination
+              )
+
+              $release = gh api "repos/$Repository/releases/tags/$Tag" | ConvertFrom-Json
+              $assets = @($release.assets | Where-Object name -Match $NamePattern)
+              if ($assets.Count -ne 1) {
+                  throw "Expected one $Repository $Tag asset matching $NamePattern, found $($assets.Count)."
+              }
+
+              Invoke-WebRequest -Uri $assets[0].browser_download_url -OutFile $Destination
+          }
+
+          $dnSpyZip = Join-Path $downloadDir "dnSpy.zip"
+          $ilSpyZip = Join-Path $downloadDir "ILSpy.zip"
+          Download-ReleaseAsset "dnSpyEx/dnSpy" $env:DNSPY_VERSION '^dnSpy-netframework\.zip$' $dnSpyZip
+          Download-ReleaseAsset "icsharpcode/ILSpy" $env:ILSPY_VERSION '^ILSpy_windows_[0-9].*-x64\.zip$' $ilSpyZip
+
+          $dnSpyDir = Join-Path $hostDir "dnSpy"
+          $ilSpyDir = Join-Path $hostDir "ILSpy"
+          Expand-Archive -LiteralPath $dnSpyZip -DestinationPath $dnSpyDir
+          Expand-Archive -LiteralPath $ilSpyZip -DestinationPath $ilSpyDir
+
+          $requiredFiles = @(
+              (Join-Path $dnSpyDir "bin\dnSpy.Contracts.DnSpy.dll"),
+              (Join-Path $ilSpyDir "ILSpy.dll")
+          )
+          foreach ($file in $requiredFiles) {
+              if (-not (Test-Path -LiteralPath $file)) {
+                  throw "Host archive has an unexpected layout; missing $file"
+              }
+          }
+
+          "DNSPY_DIR=$dnSpyDir" >> $env:GITHUB_ENV
+          "ILSPY_DIR=$ilSpyDir" >> $env:GITHUB_ENV
+
+      - name: Run tests
+        shell: pwsh
+        run: |
+          dotnet test tests/MonoWeaver.HookPatternPlugin.Tests/MonoWeaver.HookPatternPlugin.Tests.csproj --configuration Release -p:Version=$env:PACKAGE_VERSION
+          if ($LASTEXITCODE -ne 0) {
+              throw "Tests failed."
+          }
+
+      - name: Build dnSpyEx plugin
+        shell: pwsh
+        run: |
+          dotnet build src/MonoWeaver.DnSpyEx.HookPatternPlugin/MonoWeaver.DnSpyEx.HookPatternPlugin.csproj --configuration Release -p:Version=$env:PACKAGE_VERSION "-p:DnSpyDir=$env:DNSPY_DIR"
+          if ($LASTEXITCODE -ne 0) {
+              throw "dnSpyEx plugin build failed."
+          }
+
+      - name: Build ILSpy plugin
+        shell: pwsh
+        run: |
+          dotnet build src/MonoWeaver.ILSpy.HookPatternPlugin/MonoWeaver.ILSpy.HookPatternPlugin.csproj --configuration Release -p:Version=$env:PACKAGE_VERSION "-p:ILSpyDir=$env:ILSPY_DIR"
+          if ($LASTEXITCODE -ne 0) {
+              throw "ILSpy plugin build failed."
+          }
+
+      - name: Create install archives
+        shell: pwsh
+        run: |
+          $distDir = Join-Path $env:GITHUB_WORKSPACE "dist"
+          $stageDir = Join-Path $env:RUNNER_TEMP "release-stage"
+          $dnSpyStage = Join-Path $stageDir "dnSpyEx"
+          $ilSpyStage = Join-Path $stageDir "ILSpy"
+          New-Item -ItemType Directory -Path $distDir, $dnSpyStage, $ilSpyStage -Force | Out-Null
+
+          function Copy-ReleaseFiles {
+              param(
+                  [Parameter(Mandatory)] [string] $Source,
+                  [Parameter(Mandatory)] [string] $Destination,
+                  [Parameter(Mandatory)] [string[]] $Files
+              )
+
+              foreach ($file in $Files) {
+                  $sourceFile = Join-Path $Source $file
+                  if (-not (Test-Path -LiteralPath $sourceFile)) {
+                      throw "Release file is missing: $sourceFile"
+                  }
+                  Copy-Item -LiteralPath $sourceFile -Destination $Destination
+              }
+
+              $resources = Join-Path $Source "zh-CN"
+              if (Test-Path -LiteralPath $resources) {
+                  Copy-Item -LiteralPath $resources -Destination $Destination -Recurse
+              }
+          }
+
+          $dnSpyOutput = Join-Path $env:GITHUB_WORKSPACE "src\MonoWeaver.DnSpyEx.HookPatternPlugin\bin\Release\net48"
+          Copy-ReleaseFiles $dnSpyOutput $dnSpyStage @(
+              "MonoWeaver.DnSpyEx.HookPatternPlugin.x.dll",
+              "MonoWeaver.PatternGeneration.dll",
+              "MonoWeaver.dll",
+              "Mono.Cecil.dll"
+          )
+
+          $ilSpyOutput = Join-Path $env:GITHUB_WORKSPACE "src\MonoWeaver.ILSpy.HookPatternPlugin\bin\Release\net10.0"
+          Copy-ReleaseFiles $ilSpyOutput $ilSpyStage @(
+              "MonoWeaver.ILSpy.HookPatternPlugin.Plugin.dll",
+              "MonoWeaver.PatternGeneration.dll",
+              "MonoWeaver.dll"
+          )
+
+          $dnSpyArchive = Join-Path $distDir "MonoWeaver.HookPatternPlugin-dnSpyEx-$env:PACKAGE_VERSION.zip"
+          $ilSpyArchive = Join-Path $distDir "MonoWeaver.HookPatternPlugin-ILSpy-$env:PACKAGE_VERSION.zip"
+          Compress-Archive -Path (Join-Path $dnSpyStage "*") -DestinationPath $dnSpyArchive
+          Compress-Archive -Path (Join-Path $ilSpyStage "*") -DestinationPath $ilSpyArchive
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: MonoWeaver.HookPatternPlugin-${{ env.PACKAGE_VERSION }}
+          path: dist/*.zip
+          if-no-files-found: error
+
+      - name: Publish GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY 2>$null
+          if ($LASTEXITCODE -ne 0) {
+              $arguments = @(
+                  "release", "create", $env:RELEASE_TAG,
+                  "--repo", $env:GITHUB_REPOSITORY,
+                  "--target", "${{ github.sha }}",
+                  "--title", "MonoWeaver HookPatternPlugin $env:RELEASE_TAG",
+                  "--generate-notes"
+              )
+              if ($env:RELEASE_TAG.Contains("-")) {
+                  $arguments += "--prerelease"
+              }
+              & gh @arguments
+              if ($LASTEXITCODE -ne 0) {
+                  throw "Could not create GitHub release."
+              }
+          }
+
+          gh release upload $env:RELEASE_TAG dist/*.zip --repo $env:GITHUB_REPOSITORY --clobber
+          if ($LASTEXITCODE -ne 0) {
+              throw "Could not upload release archives."
+          }
